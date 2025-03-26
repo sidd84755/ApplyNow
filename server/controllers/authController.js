@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import transporter from '../components/mailer.js';
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -25,6 +26,14 @@ export const register = async (req, res) => {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000
      });
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: 'Welcome to ApplyNow!',
+      text: `Hi there we are excited to have you onboard on our platform. Your Destination for high paying Jobs. Your account has been created successfully.`,
+    };
+    await transporter.sendMail(mailOptions);
     return res.json({success:true, message: 'Register success' });
   } catch (error) {
         res.status(500).json({success:false, message: error.message });
